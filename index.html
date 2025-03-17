@@ -3,723 +3,442 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Typing Apocalypse</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial', sans-serif;
-            background-color: #111;
-            color: #fff;
-            overflow: hidden;
-        }
-        #game-container {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            background-image: url('/api/placeholder/1200/700');
-            background-size: cover;
-            background-position: center;
-        }
-        #game-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-        #start-screen {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            z-index: 100;
-        }
-        #game-title {
-            font-size: 3rem;
-            margin-bottom: 2rem;
-            text-shadow: 0 0 10px #f00;
-        }
-        #settings {
-            margin-bottom: 2rem;
-        }
-        button {
-            background-color: #f00;
-            color: #fff;
-            border: none;
-            padding: 1rem 2rem;
-            font-size: 1.5rem;
-            cursor: pointer;
-            margin: 0.5rem;
-            border-radius: 5px;
-            transition: all 0.3s;
-        }
-        button:hover {
-            background-color: #ff3333;
-            transform: scale(1.05);
-        }
-        #game-ui {
-            display: none;
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-        #score-container {
-            position: absolute;
-            top: 1rem;
-            left: 1rem;
-            font-size: 1.5rem;
-            z-index: 10;
-        }
-        #health-container {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            font-size: 1.5rem;
-            z-index: 10;
-        }
-        #time-container {
-            position: absolute;
-            top: 1rem;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 1.5rem;
-            z-index: 10;
-        }
-        .enemy {
-            position: absolute;
-            width: 150px;
-            height: 200px;
-            background-image: url('/api/placeholder/150/200');
-            background-size: cover;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: left 0.5s linear, top 0.5s linear;
-        }
-        .word-container {
-            padding: 10px;
-            background-color: rgba(0, 0, 0, 0.7);
-            border-radius: 5px;
-            margin-bottom: 10px;
-            max-width: 200px;
-            word-wrap: break-word;
-        }
-        .word {
-            font-size: 1.2rem;
-            font-weight: bold;
-            text-align: center;
-        }
-        .typed {
-            color: #0f0;
-        }
-        .untyped {
-            color: #fff;
-        }
-        .current-enemy {
-            box-shadow: 0 0 20px #0f0;
-        }
-        #game-over {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            background-color: rgba(0, 0, 0, 0.8);
-            padding: 2rem;
-            border-radius: 10px;
-            z-index: 100;
-        }
-        #input-debug {
-            position: absolute;
-            bottom: 1rem;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 0.5rem;
-            border-radius: 5px;
-            font-family: monospace;
-            display: none;
-        }
-        .progress-bar {
-            width: 100%;
-            height: 10px;
-            background-color: #333;
-            margin-top: 5px;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-        .progress {
-            height: 100%;
-            background-color: #f00;
-            width: 100%;
-            transition: width 0.5s linear;
-        }
-        #level-indicator {
-            position: absolute;
-            top: 4rem;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 1.5rem;
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            z-index: 10;
-            display: none;
-        }
-    </style>
+    <title>The Typing of the Dead - Browser Edition</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div id="game-container">
-        <div id="game-overlay"></div>
-        
+        <div id="score">Score: 0</div>
+        <div id="health">Health: 100</div>
+        <button id="language-toggle">EN / TH</button>
+        <div id="overlay"></div>
         <div id="start-screen">
-            <h1 id="game-title">Typing Apocalypse</h1>
-            <div id="settings">
-                <div>
-                    <label for="language-select">Language:</label>
-                    <select id="language-select">
-                        <option value="en">English</option>
-                        <option value="th">Thai</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="difficulty-select">Difficulty:</label>
-                    <select id="difficulty-select">
-                        <option value="easy">Easy</option>
-                        <option value="medium">Medium</option>
-                        <option value="hard">Hard</option>
-                    </select>
-                </div>
-            </div>
-            <button id="start-btn">Start Game</button>
-            <button id="instructions-btn">Instructions</button>
+            <h1>The Typing of the Dead</h1>
+            <h2>Browser Edition</h2>
+            <p>Type the words that appear on zombies to defeat them!</p>
+            <p>Supports English and Thai keyboards (toggle with the button)</p>
+            <button id="start-button">Start Game</button>
         </div>
-        
-        <div id="game-ui">
-            <div id="score-container">Score: <span id="score">0</span></div>
-            <div id="health-container">Health: <span id="health">100</span></div>
-            <div id="time-container">Time: <span id="time">60</span></div>
-            <div id="level-indicator">Level: <span id="level">1</span></div>
-            <div id="enemies-container"></div>
-            <div id="input-debug"></div>
-        </div>
-        
         <div id="game-over">
-            <h2>Game Over</h2>
-            <p>Final Score: <span id="final-score">0</span></p>
-            <p>Level Reached: <span id="final-level">1</span></p>
-            <button id="restart-btn">Play Again</button>
-            <button id="main-menu-btn">Main Menu</button>
+            <h1>Game Over</h1>
+            <h2>Final Score: <span id="final-score">0</span></h2>
+            <button id="restart-button">Play Again</button>
         </div>
     </div>
 
     <script>
-        // Game constants
-        const GAME_DURATION = 60; // seconds
-        const SPAWN_INTERVAL = {
-            easy: 4000,
-            medium: 3000,
-            hard: 2000
-        };
-        const ENEMY_SPEED = {
-            easy: 5000,
-            medium: 4000,
-            hard: 3000
-        };
-        const MAX_ENEMIES = {
-            easy: 3,
-            medium: 5,
-            hard: 7
-        };
-        const HEALTH_DAMAGE = 10;
-        const POINTS_PER_LETTER = 10;
-
-        // Word lists
-        const words = {
-            en: {
-                easy: [
-                    "run", "jump", "fast", "slow", "help", "type", "game", "play", 
-                    "win", "lose", "dead", "live", "fight", "save", "quick", "move",
-                    "stop", "go", "see", "look", "hear", "sound", "time", "day",
-                    "night", "sun", "moon", "star", "sky", "earth", "water", "fire"
-                ],
-                medium: [
-                    "zombie", "apocalypse", "survival", "infection", "outbreak", 
-                    "undead", "monster", "creature", "mutant", "virus", "escape", 
-                    "danger", "weapon", "shotgun", "pistol", "bullet", "attack",
-                    "defend", "barricade", "shelter", "supplies", "medkit", "bandage",
-                    "survivor", "group", "alone", "darkness", "flashlight", "battery"
-                ],
-                hard: [
-                    "catastrophic", "extermination", "civilization", "annihilation", 
-                    "contamination", "quarantine", "infestation", "devastation", 
-                    "eradication", "elimination", "reanimation", "resurrection", 
-                    "supernatural", "phenomenon", "breakthrough", "vaccination",
-                    "intelligence", "communication", "reinforcement", "ammunition",
-                    "coordination", "surveillance", "headquarters", "transmission"
-                ]
-            },
-            th: {
-                easy: [
-                    "วิ่ง", "กระโดด", "เร็ว", "ช้า", "ช่วย", "พิมพ์", "เกม", "เล่น",
-                    "ชนะ", "แพ้", "ตาย", "อยู่", "สู้", "รอด", "ไว", "ไป",
-                    "หยุด", "ไป", "เห็น", "มอง", "ฟัง", "เสียง", "เวลา", "วัน",
-                    "คืน", "ดวงอาทิตย์", "ดวงจันทร์", "ดาว", "ท้องฟ้า", "โลก", "น้ำ", "ไฟ"
-                ],
-                medium: [
-                    "ซอมบี้", "หายนะ", "เอาชีวิตรอด", "การติดเชื้อ", "การระบาด",
-                    "ผีดิบ", "มอนสเตอร์", "สิ่งมีชีวิต", "กลายพันธุ์", "ไวรัส", "หนี",
-                    "อันตราย", "อาวุธ", "ปืนลูกซอง", "ปืนพก", "กระสุน", "โจมตี",
-                    "ป้องกัน", "จุดป้องกัน", "ที่พักพิง", "เสบียง", "ชุดปฐมพยาบาล", "ผ้าพันแผล"
-                ],
-                hard: [
-                    "มหันตภัย", "การกวาดล้าง", "อารยธรรม", "การทำลายล้าง",
-                    "การปนเปื้อน", "การกักกัน", "การแพร่ระบาด", "ความพินาศ",
-                    "การกำจัด", "การขจัด", "การฟื้นคืนชีพ", "การคืนชีพ",
-                    "เหนือธรรมชาติ", "ปรากฏการณ์", "การค้นพบ", "การฉีดวัคซีน"
-                ]
-            }
-        };
-
         // Game state
-        let gameState = {
+        const state = {
             score: 0,
             health: 100,
-            timeRemaining: GAME_DURATION,
-            enemies: [],
-            currentEnemy: null,
-            currentTyped: "",
-            gameInterval: null,
-            spawnInterval: null,
-            language: "en",
-            difficulty: "easy",
-            level: 1,
-            enemiesDefeated: 0,
-            enemiesPerLevel: 10,
-            gameActive: false,
-            debugMode: false
+            currentLanguage: 'en',
+            zombies: [],
+            activeZombies: [],
+            camera: null,
+            scene: null,
+            renderer: null,
+            path: [],
+            pathPosition: 0,
+            pathSpeed: 0.005,
+            lastZombieTime: 0,
+            zombieInterval: 3000,
+            gameRunning: false
         };
 
-        // DOM Elements
-        const startScreen = document.getElementById('start-screen');
-        const gameUI = document.getElementById('game-ui');
-        const gameOver = document.getElementById('game-over');
-        const startBtn = document.getElementById('start-btn');
-        const instructionsBtn = document.getElementById('instructions-btn');
-        const restartBtn = document.getElementById('restart-btn');
-        const mainMenuBtn = document.getElementById('main-menu-btn');
+        // Words for zombies
+        const words = {
+            en: [
+                'zombie', 'brain', 'undead', 'apocalypse', 'survive',
+                'horror', 'infected', 'outbreak', 'shamble', 'bite',
+                'virus', 'epidemic', 'quarantine', 'decompose', 'flesh',
+                'corpse', 'reanimated', 'groan', 'shuffle', 'lurk',
+                'terror', 'rotting', 'nightmare', 'gruesome', 'macabre',
+                'death', 'putrid', 'stagger', 'ghoul', 'cadaver',
+                'decay', 'reanimate', 'blood', 'walking', 'dead'
+            ],
+            th: [
+                'ซอมบี้', 'สมอง', 'ไม่ตาย', 'หายนะ', 'รอดชีวิต',
+                'สยอง', 'ติดเชื้อ', 'ระบาด', 'เดินโซเซ', 'กัด',
+                'ไวรัส', 'โรคระบาด', 'กักกัน', 'เน่า', 'เนื้อ',
+                'ศพ', 'ฟื้นคืนชีพ', 'ครวญคราง', 'เดินลากขา', 'ซุ่มซ่อน',
+                'ความกลัว', 'เน่าเปื่อย', 'ฝันร้าย', 'น่าสยดสยอง', 'สยองขวัญ',
+                'ความตาย', 'เน่าเหม็น', 'โซเซ', 'ผีดิบ', 'ซากศพ',
+                'เน่าเปื่อย', 'ฟื้นคืนชีพ', 'เลือด', 'เดิน', 'ตาย'
+            ]
+        };
+
+        // DOM elements
+        const overlay = document.getElementById('overlay');
         const scoreElement = document.getElementById('score');
         const healthElement = document.getElementById('health');
-        const timeElement = document.getElementById('time');
+        const languageToggle = document.getElementById('language-toggle');
+        const startScreen = document.getElementById('start-screen');
+        const startButton = document.getElementById('start-button');
+        const gameOverScreen = document.getElementById('game-over');
+        const restartButton = document.getElementById('restart-button');
         const finalScoreElement = document.getElementById('final-score');
-        const finalLevelElement = document.getElementById('final-level');
-        const enemiesContainer = document.getElementById('enemies-container');
-        const languageSelect = document.getElementById('language-select');
-        const difficultySelect = document.getElementById('difficulty-select');
-        const inputDebug = document.getElementById('input-debug');
-        const levelElement = document.getElementById('level');
-        const levelIndicator = document.getElementById('level-indicator');
 
-        // Initialize the game
-        function init() {
-            // Event listeners
-            startBtn.addEventListener('click', startGame);
-            instructionsBtn.addEventListener('click', showInstructions);
-            restartBtn.addEventListener('click', restartGame);
-            mainMenuBtn.addEventListener('click', showMainMenu);
-            document.addEventListener('keydown', handleKeyDown);
-            
-            // Debug mode toggle (press 'D' on start screen)
-            document.addEventListener('keydown', (e) => {
-                if (e.key.toLowerCase() === 'd' && !gameState.gameActive) {
-                    gameState.debugMode = !gameState.debugMode;
-                    inputDebug.style.display = gameState.debugMode ? 'block' : 'none';
-                    console.log('Debug mode:', gameState.debugMode);
-                }
+        // Initialize the 3D world
+        function initThreeJS() {
+            // Create scene
+            state.scene = new THREE.Scene();
+            state.scene.background = new THREE.Color(0x111111);
+            state.scene.fog = new THREE.Fog(0x111111, 10, 50);
+
+            // Create camera
+            state.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            state.camera.position.set(0, 2, 0);
+            state.camera.lookAt(0, 2, -10);
+
+            // Create renderer
+            state.renderer = new THREE.WebGLRenderer({ antialias: true });
+            state.renderer.setSize(window.innerWidth, window.innerHeight);
+            state.renderer.shadowMap.enabled = true;
+            document.getElementById('game-container').appendChild(state.renderer.domElement);
+
+            // Add lights
+            const ambientLight = new THREE.AmbientLight(0x404040);
+            state.scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.position.set(0, 10, 10);
+            directionalLight.castShadow = true;
+            state.scene.add(directionalLight);
+
+            // Create ground
+            const groundGeometry = new THREE.PlaneGeometry(100, 100);
+            const groundMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x333333,
+                roughness: 0.8,
+                metalness: 0.2
             });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            state.scene.add(ground);
+
+            // Create walls
+            createWalls();
+
+            // Generate path
+            generatePath();
+
+            // Create zombies
+            createZombies();
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                state.camera.aspect = window.innerWidth / window.innerHeight;
+                state.camera.updateProjectionMatrix();
+                state.renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            // Start the animation loop
+            animate();
         }
 
-        // Start the game
-        function startGame() {
-            gameState.language = languageSelect.value;
-            gameState.difficulty = difficultySelect.value;
-            
-            resetGameState();
-            
-            startScreen.style.display = 'none';
-            gameUI.style.display = 'block';
-            gameOver.style.display = 'none';
-            levelIndicator.style.display = 'block';
-            
-            // Start game timers
-            gameState.gameActive = true;
-            gameState.gameInterval = setInterval(updateGame, 1000);
-            gameState.spawnInterval = setInterval(spawnEnemy, SPAWN_INTERVAL[gameState.difficulty]);
-            
-            // Spawn initial enemies
-            spawnEnemy();
-        }
+        // Create walls for the path
+        function createWalls() {
+            // Left wall
+            const leftWallGeometry = new THREE.BoxGeometry(2, 4, 100);
+            const wallMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x8B4513,
+                roughness: 0.7,
+                metalness: 0.2
+            });
+            const leftWall = new THREE.Mesh(leftWallGeometry, wallMaterial);
+            leftWall.position.set(-6, 2, -50);
+            leftWall.castShadow = true;
+            leftWall.receiveShadow = true;
+            state.scene.add(leftWall);
 
-        // Show instructions
-        function showInstructions() {
-            alert(`Welcome to Typing Apocalypse!
+            // Right wall
+            const rightWall = new THREE.Mesh(leftWallGeometry, wallMaterial);
+            rightWall.position.set(6, 2, -50);
+            rightWall.castShadow = true;
+            rightWall.receiveShadow = true;
+            state.scene.add(rightWall);
 
-- Type the words that appear above the enemies to defeat them
-- Enemies will move toward you - defeat them before they reach you
-- If an enemy reaches you, you lose health
-- Survive as long as possible and score the highest points
-- The game gets harder as you progress through levels
-
-Good luck!`);
-        }
-
-        // Show main menu
-        function showMainMenu() {
-            resetGameState();
-            clearAllEnemies();
-            
-            gameUI.style.display = 'none';
-            gameOver.style.display = 'none';
-            startScreen.style.display = 'block';
-            levelIndicator.style.display = 'none';
-        }
-
-        // Restart the game
-        function restartGame() {
-            gameOver.style.display = 'none';
-            startGame();
-        }
-
-        // Reset game state
-        function resetGameState() {
-            gameState.score = 0;
-            gameState.health = 100;
-            gameState.timeRemaining = GAME_DURATION;
-            gameState.enemies = [];
-            gameState.currentEnemy = null;
-            gameState.currentTyped = "";
-            gameState.level = 1;
-            gameState.enemiesDefeated = 0;
-            
-            clearInterval(gameState.gameInterval);
-            clearInterval(gameState.spawnInterval);
-            
-            scoreElement.textContent = gameState.score;
-            healthElement.textContent = gameState.health;
-            timeElement.textContent = gameState.timeRemaining;
-            levelElement.textContent = gameState.level;
-        }
-
-        // Update game state (called every second)
-        function updateGame() {
-            gameState.timeRemaining--;
-            timeElement.textContent = gameState.timeRemaining;
-            
-            // Check enemy positions
-            checkEnemyPositions();
-            
-            // Check if game over
-            if (gameState.timeRemaining <= 0 || gameState.health <= 0) {
-                endGame();
+            // Add some decoration to walls
+            for (let i = 0; i < 10; i++) {
+                const decorGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+                const decorMaterial = new THREE.MeshStandardMaterial({ color: 0x555555 });
+                
+                // Left wall decoration
+                const leftDecor = new THREE.Mesh(decorGeometry, decorMaterial);
+                leftDecor.position.set(-5, 2.5, -10 * i - 5);
+                state.scene.add(leftDecor);
+                
+                // Right wall decoration
+                const rightDecor = new THREE.Mesh(decorGeometry, decorMaterial);
+                rightDecor.position.set(5, 2.5, -10 * i - 5);
+                state.scene.add(rightDecor);
             }
         }
 
-        // End the game
-        function endGame() {
-            clearInterval(gameState.gameInterval);
-            clearInterval(gameState.spawnInterval);
-            
-            gameState.gameActive = false;
-            finalScoreElement.textContent = gameState.score;
-            finalLevelElement.textContent = gameState.level;
-            
-            gameUI.style.display = 'none';
-            gameOver.style.display = 'block';
+        // Generate a path for the camera to follow
+        function generatePath() {
+            // Simple straight path for now
+            state.path = [];
+            for (let i = 0; i < 1000; i++) {
+                // Start at origin and move forward in z-direction
+                // Add some gentle curves using sine
+                const x = Math.sin(i * 0.05) * 2;
+                const y = 2 + Math.sin(i * 0.02) * 0.5;
+                const z = -i * 0.5;
+                state.path.push(new THREE.Vector3(x, y, z));
+            }
         }
 
-        // Spawn a new enemy
-        function spawnEnemy() {
-            // Don't spawn if maximum enemies reached or game not active
-            if (gameState.enemies.length >= MAX_ENEMIES[gameState.difficulty] || !gameState.gameActive) {
-                return;
+        // Create zombie meshes
+        function createZombies() {
+            const zombieGeometry = new THREE.BoxGeometry(1, 2, 0.5);
+            
+            for (let i = 0; i < 20; i++) {
+                const zombieMaterial = new THREE.MeshStandardMaterial({ 
+                    color: new THREE.Color(0.2 + Math.random() * 0.2, 0.5 + Math.random() * 0.3, 0.2),
+                    roughness: 0.8,
+                    metalness: 0.2
+                });
+                
+                const zombie = new THREE.Mesh(zombieGeometry, zombieMaterial);
+                zombie.castShadow = true;
+                zombie.visible = false;
+                zombie.userData = { active: false };
+                state.zombies.push(zombie);
+                state.scene.add(zombie);
             }
+        }
+
+        // Spawn a zombie with text
+        function spawnZombie() {
+            // Find inactive zombie
+            const inactiveZombies = state.zombies.filter(zombie => !zombie.userData.active);
+            if (inactiveZombies.length === 0) return;
             
-            // Create enemy DOM element
-            const enemy = document.createElement('div');
-            enemy.className = 'enemy';
+            const zombie = inactiveZombies[Math.floor(Math.random() * inactiveZombies.length)];
+            zombie.userData.active = true;
             
-            // Random start position (left or right side)
-            const startFromLeft = Math.random() > 0.5;
-            const topPosition = 150 + Math.random() * (window.innerHeight - 350);
+            // Position zombie relative to camera
+            const cameraPosition = state.camera.position.clone();
+            const cameraDirection = new THREE.Vector3(0, 0, -1).applyQuaternion(state.camera.quaternion);
             
-            enemy.style.top = `${topPosition}px`;
-            enemy.style.left = startFromLeft ? '-150px' : `${window.innerWidth}px`;
+            // Random position ahead of camera
+            const distance = 10 + Math.random() * 10;
+            const offset = (Math.random() > 0.5 ? 1 : -1) * (2 + Math.random() * 3);
             
-            // Create word container
-            const wordContainer = document.createElement('div');
-            wordContainer.className = 'word-container';
+            zombie.position.copy(cameraPosition)
+                .add(cameraDirection.multiplyScalar(distance))
+                .add(new THREE.Vector3(offset, 0, 0));
             
-            // Create word element
-            const wordElement = document.createElement('div');
-            wordElement.className = 'word';
+            // Face the camera
+            zombie.lookAt(state.camera.position);
             
-            // Choose difficulty tier based on level
-            let wordTier = gameState.difficulty;
-            if (gameState.level > 2) {
-                // Increase difficulty after level 2
-                const tiers = ['easy', 'medium', 'hard'];
-                const tierIndex = Math.min(Math.floor((gameState.level - 1) / 2), tiers.length - 1);
-                wordTier = tiers[tierIndex];
-            }
+            // Add random word text
+            const language = state.currentLanguage;
+            const wordList = words[language];
+            const word = wordList[Math.floor(Math.random() * wordList.length)];
             
-            // Select a random word based on language and difficulty
-            const wordPool = words[gameState.language][wordTier];
-            const word = wordPool[Math.floor(Math.random() * wordPool.length)];
+            const textElement = document.createElement('div');
+            textElement.className = 'zombie-text';
+            textElement.innerHTML = word;
+            textElement.dataset.targetText = word;
+            textElement.dataset.currentText = '';
             
-            // Set word with colored spans
-            wordElement.innerHTML = `<span class="untyped">${word}</span>`;
+            overlay.appendChild(textElement);
             
-            // Create progress bar
-            const progressBarContainer = document.createElement('div');
-            progressBarContainer.className = 'progress-bar';
-            const progressBar = document.createElement('div');
-            progressBar.className = 'progress';
-            progressBarContainer.appendChild(progressBar);
-            
-            // Add elements to DOM
-            wordContainer.appendChild(wordElement);
-            wordContainer.appendChild(progressBarContainer);
-            enemy.appendChild(wordContainer);
-            enemiesContainer.appendChild(enemy);
-            
-            // Calculate target position (center of screen)
-            const targetLeft = window.innerWidth / 2 - 75;
-            
-            // Create enemy object
-            const enemyObj = {
-                element: enemy,
-                wordElement: wordElement,
-                progressBar: progressBar,
+            // Add to active zombies
+            state.activeZombies.push({
+                mesh: zombie,
+                textElement: textElement,
                 word: word,
-                typedIndex: 0,
-                startTime: Date.now(),
-                startFromLeft: startFromLeft,
-                targetLeft: targetLeft,
-                topPosition: topPosition
-            };
+                typed: '',
+                position: zombie.position.clone(),
+                speed: 0.02 + Math.random() * 0.02,
+                damage: 10,
+                createdTime: Date.now()
+            });
             
-            // Add to game state
-            gameState.enemies.push(enemyObj);
-            
-            // Start enemy movement
-            setTimeout(() => {
-                if (gameState.gameActive) {
-                    enemy.style.left = `${targetLeft}px`;
-                    // Decrease progress bar width over time
-                    let width = 100;
-                    const interval = setInterval(() => {
-                        if (!gameState.gameActive || !enemyObj.element) {
-                            clearInterval(interval);
-                            return;
-                        }
-                        
-                        width -= 100 / (ENEMY_SPEED[gameState.difficulty] / 100);
-                        if (width <= 0) {
-                            clearInterval(interval);
-                        } else {
-                            enemyObj.progressBar.style.width = `${width}%`;
-                        }
-                    }, 100);
-                }
-            }, 100);
-            
-            // If no current enemy selected, select this one
-            if (!gameState.currentEnemy) {
-                selectEnemy(enemyObj);
-            }
+            zombie.visible = true;
         }
 
-        // Select an enemy to type against
-        function selectEnemy(enemy) {
-            // Remove highlight from previously selected enemy
-            if (gameState.currentEnemy) {
-                gameState.currentEnemy.element.classList.remove('current-enemy');
-            }
-            
-            // Set new current enemy
-            gameState.currentEnemy = enemy;
-            gameState.currentTyped = "";
-            
-            // Highlight selected enemy
-            if (enemy) {
-                enemy.element.classList.add('current-enemy');
-            }
-        }
-
-        // Check enemy positions
-        function checkEnemyPositions() {
-            for (let i = gameState.enemies.length - 1; i >= 0; i--) {
-                const enemy = gameState.enemies[i];
+        // Update position of zombie text elements to match 3D positions
+        function updateZombieTextPositions() {
+            state.activeZombies.forEach(zombie => {
+                // Convert 3D position to screen position
+                const position = zombie.mesh.position.clone();
+                position.project(state.camera);
                 
-                // Check if enemy has reached target
-                const currentLeft = parseInt(enemy.element.style.left);
-                const targetReached = Math.abs(currentLeft - enemy.targetLeft) < 10;
+                const x = (position.x * 0.5 + 0.5) * window.innerWidth;
+                const y = (position.y * -0.5 + 0.5) * window.innerHeight;
                 
-                if (targetReached) {
-                    // Enemy reached target - player takes damage
-                    takeDamage();
-                    removeEnemy(enemy);
-                    gameState.enemies.splice(i, 1);
-                }
-            }
-        }
-
-        // Remove enemy from the game
-        function removeEnemy(enemy) {
-            // Remove from DOM
-            enemiesContainer.removeChild(enemy.element);
-            
-            // If it was the current enemy, select a new one
-            if (gameState.currentEnemy === enemy) {
-                gameState.currentEnemy = null;
-                gameState.currentTyped = "";
+                zombie.textElement.style.left = x + 'px';
+                zombie.textElement.style.top = y + 'px';
                 
-                // Select next enemy if available
-                if (gameState.enemies.length > 0) {
-                    selectEnemy(gameState.enemies[0]);
-                }
-            }
-        }
-
-        // Take damage when enemy reaches player
-        function takeDamage() {
-            gameState.health -= HEALTH_DAMAGE;
-            healthElement.textContent = gameState.health;
-            
-            // Visual feedback
-            document.body.style.backgroundColor = "#ff0000";
-            setTimeout(() => {
-                document.body.style.backgroundColor = "#111";
-            }, 100);
-        }
-
-        // Handle keyboard input
-        function handleKeyDown(e) {
-            if (!gameState.gameActive || !gameState.currentEnemy) return;
-            
-            // Update debug display
-            if (gameState.debugMode) {
-                inputDebug.textContent = `Key: ${e.key} | Code: ${e.code} | KeyCode: ${e.keyCode}`;
-            }
-            
-            const currentWord = gameState.currentEnemy.word;
-            const typedSoFar = gameState.currentTyped;
-            const nextChar = currentWord[typedSoFar.length];
-            
-            // Check if key matches next character
-            if (e.key === nextChar) {
-                // Correct key pressed
-                gameState.currentTyped += e.key;
-                updateWordDisplay();
+                // Move zombie towards camera
+                const direction = state.camera.position.clone().sub(zombie.mesh.position).normalize();
+                zombie.mesh.position.add(direction.multiplyScalar(zombie.speed));
                 
-                // Check if word complete
-                if (gameState.currentTyped.length === currentWord.length) {
-                    defeatEnemy();
-                }
-            } else if (e.key === 'Backspace') {
-                // Allow backspace
-                if (gameState.currentTyped.length > 0) {
-                    gameState.currentTyped = gameState.currentTyped.slice(0, -1);
-                    updateWordDisplay();
-                }
-            }
-        }
-
-        // Update the display of the current word
-        function updateWordDisplay() {
-            if (!gameState.currentEnemy) return;
-            
-            const typedPart = gameState.currentTyped;
-            const fullWord = gameState.currentEnemy.word;
-            const remainingPart = fullWord.slice(typedPart.length);
-            
-            gameState.currentEnemy.wordElement.innerHTML = `
-                <span class="typed">${typedPart}</span><span class="untyped">${remainingPart}</span>
-            `;
-        }
-
-        // Defeat current enemy
-        function defeatEnemy() {
-            if (!gameState.currentEnemy) return;
-            
-            // Add score based on word length
-            const pointsEarned = gameState.currentEnemy.word.length * POINTS_PER_LETTER;
-            gameState.score += pointsEarned;
-            scoreElement.textContent = gameState.score;
-            
-            // Remove enemy
-            const defeatedEnemy = gameState.currentEnemy;
-            const index = gameState.enemies.indexOf(defeatedEnemy);
-            if (index !== -1) {
-                gameState.enemies.splice(index, 1);
-            }
-            removeEnemy(defeatedEnemy);
-            
-            // Select next enemy if available
-            if (gameState.enemies.length > 0) {
-                selectEnemy(gameState.enemies[0]);
-            } else {
-                gameState.currentEnemy = null;
-            }
-            
-            // Increment enemies defeated counter
-            gameState.enemiesDefeated++;
-            
-            // Check for level up
-            if (gameState.enemiesDefeated >= gameState.enemiesPerLevel) {
-                levelUp();
-            }
-        }
-
-        // Level up
-        function levelUp() {
-            gameState.level++;
-            gameState.enemiesDefeated = 0;
-            levelElement.textContent = gameState.level;
-            
-            // Visual feedback for level up
-            levelIndicator.style.animation = 'none';
-            setTimeout(() => {
-                levelIndicator.style.animation = 'pulse 1s';
-            }, 10);
-            
-            // Increase difficulty
-            clearInterval(gameState.spawnInterval);
-            const newSpawnInterval = Math.max(
-                SPAWN_INTERVAL[gameState.difficulty] - (gameState.level * 200),
-                1000
-            );
-            gameState.spawnInterval = setInterval(spawnEnemy, newSpawnInterval);
-        }
-
-        // Clear all enemies
-        function clearAllEnemies() {
-            gameState.enemies.forEach(enemy => {
-                if (enemy.element && enemy.element.parentNode) {
-                    enemy.element.parentNode.removeChild(enemy.element);
+                // Check if zombie is too close
+                const distance = zombie.mesh.position.distanceTo(state.camera.position);
+                if (distance < 2) {
+                    // Zombie attacks player
+                    state.health -= zombie.damage;
+                    healthElement.textContent = `Health: ${state.health}`;
+                    
+                    // Remove zombie
+                    removeZombie(zombie);
+                    
+                    // Check game over
+                    if (state.health <= 0) {
+                        gameOver();
+                    }
                 }
             });
-            gameState.enemies = [];
-            gameState.currentEnemy = null;
         }
 
-        // Initialize the game when page loads
-        window.addEventListener('load', init);
+        // Remove a zombie
+        function removeZombie(zombie) {
+            zombie.mesh.visible = false;
+            zombie.mesh.userData.active = false;
+            overlay.removeChild(zombie.textElement);
+            state.activeZombies = state.activeZombies.filter(z => z !== zombie);
+        }
+
+        // Move camera along the path
+        function moveCamera() {
+            if (state.pathPosition < state.path.length - 1) {
+                const targetPosition = state.path[Math.floor(state.pathPosition)];
+                state.camera.position.copy(targetPosition);
+                
+                // Look ahead on the path
+                const lookAtIndex = Math.min(Math.floor(state.pathPosition) + 10, state.path.length - 1);
+                state.camera.lookAt(state.path[lookAtIndex]);
+                
+                state.pathPosition += state.pathSpeed;
+            } else {
+                // End of path, wrap back to start
+                state.pathPosition = 0;
+            }
+        }
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (state.gameRunning) {
+                moveCamera();
+                
+                // Spawn zombies periodically
+                const now = Date.now();
+                if (now - state.lastZombieTime > state.zombieInterval) {
+                    spawnZombie();
+                    state.lastZombieTime = now;
+                    
+                    // Make game harder over time
+                    state.zombieInterval = Math.max(1500, state.zombieInterval - 50);
+                }
+                
+                updateZombieTextPositions();
+            }
+            
+            state.renderer.render(state.scene, state.camera);
+        }
+
+        // Handle typing
+        function handleKeyDown(e) {
+            if (!state.gameRunning) return;
+            
+            // Skip modifier keys
+            if (e.ctrlKey || e.altKey || e.metaKey) return;
+            
+            // Get pressed key
+            let key = e.key;
+            
+            // Find active zombie that matches the current typing
+            let matchedZombie = null;
+            
+            for (const zombie of state.activeZombies) {
+                const remainingText = zombie.word.substring(zombie.typed.length);
+                
+                if (remainingText.startsWith(key)) {
+                    matchedZombie = zombie;
+                    break;
+                }
+            }
+            
+            if (matchedZombie) {
+                // Update typed text
+                matchedZombie.typed += key;
+                
+                // Update visual display
+                const typedPart = matchedZombie.word.substring(0, matchedZombie.typed.length);
+                const remainingPart = matchedZombie.word.substring(matchedZombie.typed.length);
+                matchedZombie.textElement.innerHTML = `<span class="typed-text">${typedPart}</span>${remainingPart}`;
+                
+                // Check if word is fully typed
+                if (matchedZombie.typed === matchedZombie.word) {
+                    // Zombie defeated!
+                    state.score += 10;
+                    scoreElement.textContent = `Score: ${state.score}`;
+                    
+                    // Remove zombie
+                    removeZombie(matchedZombie);
+                }
+            }
+        }
+
+        // Toggle language
+        function toggleLanguage() {
+            state.currentLanguage = state.currentLanguage === 'en' ? 'th' : 'en';
+            languageToggle.textContent = state.currentLanguage === 'en' ? 'EN / TH' : 'TH / EN';
+        }
+
+        // Game over
+        function gameOver() {
+            state.gameRunning = false;
+            finalScoreElement.textContent = state.score;
+            gameOverScreen.style.display = 'flex';
+            
+            // Clear active zombies
+            state.activeZombies.forEach(zombie => {
+                zombie.mesh.visible = false;
+                zombie.mesh.userData.active = false;
+                overlay.removeChild(zombie.textElement);
+            });
+            state.activeZombies = [];
+        }
+
+        // Reset game
+        function resetGame() {
+            state.score = 0;
+            state.health = 100;
+            state.pathPosition = 0;
+            state.lastZombieTime = 0;
+            state.zombieInterval = 3000;
+            
+            scoreElement.textContent = `Score: ${state.score}`;
+            healthElement.textContent = `Health: ${state.health}`;
+            
+            gameOverScreen.style.display = 'none';
+            state.gameRunning = true;
+        }
+
+        // Start game
+        function startGame() {
+            startScreen.style.display = 'none';
+            state.gameRunning = true;
+        }
+
+        // Event listeners
+        document.addEventListener('keydown', handleKeyDown);
+        languageToggle.addEventListener('click', toggleLanguage);
+        startButton.addEventListener('click', startGame);
+        restartButton.addEventListener('click', resetGame);
+
+        // Initialize game
+        initThreeJS();
     </script>
 </body>
 </html>
