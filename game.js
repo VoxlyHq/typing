@@ -151,21 +151,85 @@
                     }
                 }
 
-                // Create zombie meshes
+                // Add this near the top of the file, after THREE.js is loaded
+                const loader = new THREE.GLTFLoader();
+
+                // Modified createZombies function
                 function createZombies() {
-                    const zombieGeometry = new THREE.BoxGeometry(1, 2, 0.5);
-                    
                     for (let i = 0; i < 20; i++) {
+                        // Create zombie group
+                        const zombie = new THREE.Group();
+                        
+                        // Body (torso)
+                        const bodyGeometry = new THREE.BoxGeometry(0.8, 1.2, 0.4);
                         const zombieMaterial = new THREE.MeshStandardMaterial({ 
-                            color: new THREE.Color(0.2 + Math.random() * 0.2, 0.5 + Math.random() * 0.3, 0.2),
+                            color: new THREE.Color(0.2 + Math.random() * 0.1, 0.5, 0.2),
                             roughness: 0.8,
                             metalness: 0.2
                         });
+                        const body = new THREE.Mesh(bodyGeometry, zombieMaterial);
+                        body.position.y = 1.4;
+                        zombie.add(body);
+
+                        // Head
+                        const headGeometry = new THREE.BoxGeometry(0.6, 0.6, 0.6);
+                        const headMaterial = new THREE.MeshStandardMaterial({ 
+                            color: new THREE.Color(0.3 + Math.random() * 0.1, 0.6, 0.3),
+                            roughness: 0.8,
+                            metalness: 0.2
+                        });
+                        const head = new THREE.Mesh(headGeometry, headMaterial);
+                        head.position.y = 2.3;
+                        zombie.add(head);
+
+                        // Arms
+                        const armGeometry = new THREE.BoxGeometry(0.25, 0.8, 0.25);
+                        const armMaterial = zombieMaterial.clone();
                         
-                        const zombie = new THREE.Mesh(zombieGeometry, zombieMaterial);
+                        // Left arm
+                        const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+                        leftArm.position.set(-0.55, 1.6, 0);
+                        leftArm.rotation.z = 0.2; // Slightly raised
+                        zombie.add(leftArm);
+                        
+                        // Right arm
+                        const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+                        rightArm.position.set(0.55, 1.6, 0);
+                        rightArm.rotation.z = -0.2; // Slightly raised
+                        zombie.add(rightArm);
+
+                        // Legs
+                        const legGeometry = new THREE.BoxGeometry(0.3, 0.9, 0.3);
+                        const legMaterial = zombieMaterial.clone();
+                        
+                        // Left leg
+                        const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+                        leftLeg.position.set(-0.25, 0.45, 0);
+                        zombie.add(leftLeg);
+                        
+                        // Right leg
+                        const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
+                        rightLeg.position.set(0.25, 0.45, 0);
+                        zombie.add(rightLeg);
+
+                        // Add eyes
+                        const eyeGeometry = new THREE.SphereGeometry(0.08, 8, 8);
+                        const eyeMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 }); // Red glowing eyes
+                        
+                        const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+                        leftEye.position.set(-0.15, 2.3, 0.3);
+                        zombie.add(leftEye);
+                        
+                        const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+                        rightEye.position.set(0.15, 2.3, 0.3);
+                        zombie.add(rightEye);
+
+                        // Set up the zombie
                         zombie.castShadow = true;
                         zombie.visible = false;
                         zombie.userData = { active: false };
+                        
+                        // Store reference and add to scene
                         state.zombies.push(zombie);
                         state.scene.add(zombie);
                     }
@@ -239,6 +303,15 @@
                         // Move zombie towards camera
                         const direction = state.camera.position.clone().sub(zombie.mesh.position).normalize();
                         zombie.mesh.position.add(direction.multiplyScalar(zombie.speed));
+                        
+                        // Add swaying animation
+                        const time = Date.now() * 0.001;
+                        zombie.mesh.rotation.y = Math.sin(time * 2) * 0.1; // Swaying side to side
+                        zombie.mesh.children.forEach((part, index) => {
+                            if (index > 0 && index < 3) { // Arms only
+                                part.rotation.z = Math.sin(time * 3) * 0.2 + (index === 1 ? 0.2 : -0.2);
+                            }
+                        });
                         
                         // Check if zombie is too close
                         const distance = zombie.mesh.position.distanceTo(state.camera.position);
@@ -363,8 +436,8 @@
                     
                     // Clear active zombies
                     state.activeZombies.forEach(zombie => {
-                        zombie.mesh.visible = false;
-                        zombie.mesh.userData.active = false;
+                        zombie.visible = false;
+                        zombie.userData.active = false;
                         overlay.removeChild(zombie.textElement);
                     });
                     state.activeZombies = [];
