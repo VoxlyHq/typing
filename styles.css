@@ -131,23 +131,26 @@ body {
 
 #ios-prompt {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: auto;
+    height: auto;
+    background: none;
+    display: none;
     z-index: 1000;
+    pointer-events: none;
 }
 
 .prompt-content {
-    background: white;
+    background: rgba(0, 0, 0, 0.85);
     padding: 20px;
     border-radius: 10px;
     text-align: center;
     max-width: 80%;
+    color: white;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    pointer-events: auto;
 }
 
 .prompt-content p {
@@ -167,4 +170,8 @@ body {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+}
+
+#close-prompt:hover {
+    background: #45a049;
 } 
