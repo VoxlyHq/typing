@@ -462,7 +462,24 @@
                 function startGame() {
                     startScreen.style.display = 'none';
                     state.gameRunning = true;
+                    
+                    // Focus the input field for mobile keyboard
+                    const mobileInput = document.getElementById('mobile-input');
+                    mobileInput.focus();
                 }
+
+                // Add this to handle input changes
+                document.getElementById('mobile-input').addEventListener('input', (e) => {
+                    if (!state.gameRunning) return;
+                    
+                    const key = e.target.value;
+                    if (key) {
+                        // Simulate keydown event with the typed character
+                        handleKeyDown({ key: key, ctrlKey: false, altKey: false, metaKey: false });
+                        // Clear the input for next character
+                        e.target.value = '';
+                    }
+                });
 
                 // Event listeners
                 document.addEventListener('keydown', handleKeyDown);
@@ -478,3 +495,27 @@
 
                 // Initialize game
                 initGame();
+
+                // Add near the start of your JavaScript
+                function checkIOS() {
+                    return [
+                        'iPad Simulator',
+                        'iPhone Simulator',
+                        'iPod Simulator',
+                        'iPad',
+                        'iPhone',
+                        'iPod'
+                    ].includes(navigator.platform)
+                    || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
+                }
+
+                // Add to your initialization code
+                document.addEventListener('DOMContentLoaded', () => {
+                    if (checkIOS() && !window.navigator.standalone) {
+                        document.getElementById('ios-prompt').style.display = 'flex';
+                    }
+                });
+
+                document.getElementById('close-prompt').addEventListener('click', () => {
+                    document.getElementById('ios-prompt').style.display = 'none';
+                });
