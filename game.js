@@ -13,30 +13,20 @@
                     pathSpeed: 0.005,
                     lastZombieTime: 0,
                     zombieInterval: 3000,
-                    gameRunning: false
+                    gameRunning: false,
+                    words: null
                 };
 
-                // Words for zombies
-                const words = {
-                    en: [
-                        'zombie', 'brain', 'undead', 'apocalypse', 'survive',
-                        'horror', 'infected', 'outbreak', 'shamble', 'bite',
-                        'virus', 'epidemic', 'quarantine', 'decompose', 'flesh',
-                        'corpse', 'reanimated', 'groan', 'shuffle', 'lurk',
-                        'terror', 'rotting', 'nightmare', 'gruesome', 'macabre',
-                        'death', 'putrid', 'stagger', 'ghoul', 'cadaver',
-                        'decay', 'reanimate', 'blood', 'walking', 'dead'
-                    ],
-                    th: [
-                        'ซอมบี้', 'สมอง', 'ไม่ตาย', 'หายนะ', 'รอดชีวิต',
-                        'สยอง', 'ติดเชื้อ', 'ระบาด', 'เดินโซเซ', 'กัด',
-                        'ไวรัส', 'โรคระบาด', 'กักกัน', 'เน่า', 'เนื้อ',
-                        'ศพ', 'ฟื้นคืนชีพ', 'ครวญคราง', 'เดินลากขา', 'ซุ่มซ่อน',
-                        'ความกลัว', 'เน่าเปื่อย', 'ฝันร้าย', 'น่าสยดสยอง', 'สยองขวัญ',
-                        'ความตาย', 'เน่าเหม็น', 'โซเซ', 'ผีดิบ', 'ซากศพ',
-                        'เน่าเปื่อย', 'ฟื้นคืนชีพ', 'เลือด', 'เดิน', 'ตาย'
-                    ]
-                };
+                // Load words from JSON file
+                async function loadWords() {
+                    try {
+                        const response = await fetch('words.json');
+                        state.words = await response.json();
+                    } catch (error) {
+                        console.error('Error loading words:', error);
+                        state.words = { en: [], th: [] };
+                    }
+                }
 
                 // DOM elements
                 const overlay = document.getElementById('overlay');
@@ -207,7 +197,7 @@
                     
                     // Add random word text
                     const language = state.currentLanguage;
-                    const wordList = words[language];
+                    const wordList = state.words[language];
                     const word = wordList[Math.floor(Math.random() * wordList.length)];
                     
                     const textElement = document.createElement('div');
@@ -407,5 +397,11 @@
                 startButton.addEventListener('click', startGame);
                 restartButton.addEventListener('click', resetGame);
 
+                // Update game initialization
+                async function initGame() {
+                    await loadWords();
+                    initThreeJS();
+                }
+
                 // Initialize game
-                initThreeJS();
+                initGame();
