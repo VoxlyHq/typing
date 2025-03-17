@@ -19,7 +19,6 @@
     <div id="game-container">
         <div id="score">Score: 0</div>
         <div id="health">Health: 100</div>
-        <button id="language-toggle">EN / TH</button>
         <input type="text" 
                id="mobile-input" 
                autocomplete="off" 
@@ -41,7 +40,13 @@
             <h1>Zombie Typing</h1>
             <h2>Browser Edition</h2>
             <p>Type the words that appear on zombies to defeat them!</p>
-            <p>Supports English and Thai keyboards (toggle with the button)</p>
+            <div class="language-selection">
+                <p>Select your keyboard language:</p>
+                <div class="language-buttons">
+                    <button id="en-select" class="lang-btn active">English</button>
+                    <button id="th-select" class="lang-btn">ไทย</button>
+                </div>
+            </div>
             <button id="start-button">Start Game</button>
         </div>
         <div id="game-over">

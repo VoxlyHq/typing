@@ -422,11 +422,9 @@
                     }
                 }
 
-                // Toggle language
-                function toggleLanguage() {
-                    state.currentLanguage = state.currentLanguage === 'en' ? 'th' : 'en';
-                    languageToggle.textContent = state.currentLanguage === 'en' ? 'EN / TH' : 'TH / EN';
-                }
+                // Replace the language toggle logic with this
+                const enSelect = document.getElementById('en-select');
+                const thSelect = document.getElementById('th-select');
 
                 // Game over
                 function gameOver() {
@@ -460,6 +458,9 @@
 
                 // Start game
                 function startGame() {
+                    if (!state.currentLanguage) {
+                        state.currentLanguage = 'en'; // Default to English if nothing selected
+                    }
                     startScreen.style.display = 'none';
                     state.gameRunning = true;
                     
@@ -468,6 +469,21 @@
                     mobileInput.focus();
                 }
 
+                enSelect.addEventListener('click', () => {
+                    state.currentLanguage = 'en';
+                    enSelect.classList.add('active');
+                    thSelect.classList.remove('active');
+                });
+                
+                thSelect.addEventListener('click', () => {
+                    state.currentLanguage = 'th';
+                    thSelect.classList.add('active');
+                    enSelect.classList.remove('active');
+                });
+                
+                
+                
+                
                 // Add this to handle input changes
                 document.getElementById('mobile-input').addEventListener('input', (e) => {
                     if (!state.gameRunning) return;
@@ -483,7 +499,6 @@
 
                 // Event listeners
                 document.addEventListener('keydown', handleKeyDown);
-                languageToggle.addEventListener('click', toggleLanguage);
                 startButton.addEventListener('click', startGame);
                 restartButton.addEventListener('click', resetGame);
 
